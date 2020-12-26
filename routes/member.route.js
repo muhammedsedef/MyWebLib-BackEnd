@@ -20,7 +20,10 @@ router.delete('/:id',checkAuth, MemberCtrl.delete);
 router.post('/login', MemberCtrl.login);
 //RESET MEMBER'S PASSWORD
 router.post('/:id/resetPassword',checkAuth,resetPasswordValidationRules(),validate, MemberCtrl.resetPassword);
-
+//TO FOLLOW A USER
+router.post('/follow',checkAuth, MemberCtrl.follow);
+//TO UNFOLLOW A USER
+router.post('/unFollow',checkAuth, MemberCtrl.unFollow);
 
 
 module.exports = router;

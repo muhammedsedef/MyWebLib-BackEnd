@@ -219,4 +219,91 @@ exports.resetPassword = (req,res) => {
         console.log("hata");
     });
 };
+
+exports.follow = (req,res) => {
+    console.log(req.userData);
+    //FOLLOW PART
+    Member.findOneAndUpdate({_id:req.userData.memberID},
+        {$push: {follow:{
+                    userID: req.body.id,
+                    followDate: new Date()
+                }
+            }
+        },{new:true}
+        ).then((result) => {
+           console.log(result);
+        }).catch((err) => {
+            res.status(400).json({
+                status: 400,
+                message: "follow da hata"
+            });
+        });    
+    
+
+    //FOLLOWERS PART
+    Member.findOneAndUpdate({_id:req.body.id},
+        {$push: {followers:{
+                    userID: req.userData.memberID,
+                    followDate: new Date()
+                }
+            }
+        },{new:true}
+        ).then((result) => {
+            res.status(200).json({
+                status: 200,
+                data: result,
+                message: `You Successfully follow ${result.firstName} ${result.lastName}`
+                
+            });
+        }).catch((err) => {
+            res.status(400).json({
+                status: 400,
+                message: "followers da hata"
+            });
+        });
+
+}
+
+
+exports.unFollow = (req,res) => {
+    console.log(req.userData);
+    //FOLLOW PART
+    Member.findOneAndUpdate({_id:req.userData.memberID},
+        {$pull: {follow:{
+                    userID: req.body.id
+                }
+            }
+        },{new:true}
+        ).then((result) => {
+           console.log(result);
+        }).catch((err) => {
+            res.status(400).json({
+                status: 400,
+                message: "follow da hata"
+            });
+        });    
+    
+
+    //FOLLOWERS PART
+    Member.findOneAndUpdate({_id:req.body.id},
+        {$pull: {followers:{
+                    userID: req.userData.memberID
+                }
+            }
+        },{new:true}
+        ).then((result) => {
+            res.status(200).json({
+                status: 200,
+                data: result,
+                message: `You Successfully unFollow ${result.firstName} ${result.lastName}`
+                
+            });
+        }).catch((err) => {
+            res.status(400).json({
+                status: 400,
+                message: "followers da hata"
+            });
+        });
+
+}
     
