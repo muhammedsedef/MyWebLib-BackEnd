@@ -156,7 +156,7 @@ exports.login = async (req,res) => {
         }else{ 
             if(bcrypt.compareSync(req.body.password, member.password)){
                 const token = jwt.sign({
-                    memberID: member._id 
+                    memberID: member._id
                 },
                 process.env.JWT_KEY,
                 {

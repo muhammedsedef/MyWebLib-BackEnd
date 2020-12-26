@@ -18,6 +18,19 @@ const MemberSchema = mongoose.Schema ({
         type: String,
         required: true
     },
+    follow: {
+        type: [{
+
+            userID: {
+                type: String,
+                required: true
+            },
+            followDate: {
+                type: Date,
+                default: Date.now
+            }
+        }]
+    },
     date: {
         type: Date,
         default: Date.now

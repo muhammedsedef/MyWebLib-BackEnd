@@ -1,14 +1,29 @@
 const Post = require ('../models/Post.model');
+const Member = require ('../models/Member.model');
 
 //GET BACK ALL THE POSTS
 exports.list = (req, res) => {
-    Post.find()
+    Post.find({})
     .then((posts) => {
-        return res.status(200).json({
-            status: 200,
-            data: posts,
-            message: 'Success'
-        })
+        const authorID = [];
+        posts.forEach(post => {
+            authorID.push(post['authorID']);
+        });
+       
+        Member.find({"_id":{"$in":authorID}})
+        .then((authorInfo) => {
+            return res.status(200).json({
+                status: 200,
+                data: posts,
+                authorInfo:authorInfo,
+                message: 'Success'
+            })
+        }).catch((err) => {
+            return res.status(400).json({
+                status: 400,
+                message: err.message
+            });
+        });
     })
     .catch((err) => {
         return res.status(400).json({
@@ -24,7 +39,8 @@ exports.create = (req,res) => {
         title: req.body.title,
         description: req.body.description,
         category: req.body.category,
-        authorID: req.userData.memberID
+        authorID: req.userData.memberID,
+        score: req.body.score
     });
     post.save()
         .then((createdPost) => {
@@ -69,6 +85,7 @@ exports.update = (req,res) => {
         post.title = req.body.title || post.title;
         post.description = req.body.description || post.description;
         post.category = req.body.category || post.category;
+        post.score = req.body.score || post.score;
         post.lastModified = new Date();
         post.save()
         .then((updatedPost) => {
@@ -141,7 +158,7 @@ exports.update = (req,res) => {
 exports.delete = (req,res) => {
     Post.findById(req.params.id)
     .then((post) => {
-       if(post.author.userID == req.userData.memberID) {
+       if(post.authorID == req.userData.memberID) {
         post.remove()
         .then((removedPost) => {
             return res.status(200).json({

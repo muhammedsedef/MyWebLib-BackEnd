@@ -17,6 +17,10 @@ const PostSchema = mongoose.Schema ({
         type: String,
         required: true
     },
+    score:{
+        type: Number,
+        required: true
+    },
     date: {
         type: Date,
         default: Date.now
