@@ -10,8 +10,9 @@ exports.list = (req, res) => {
             authorID.push(post['authorID']);
         });
        
-        Member.find({"_id":{"$in":authorID}})
+        Member.find({"_id":{"$in":authorID}},"-password")
         .then((authorInfo) => {
+            console.log(authorInfo);
             return res.status(200).json({
                 status: 200,
                 data: posts,
@@ -40,6 +41,7 @@ exports.create = (req,res) => {
         description: req.body.description,
         category: req.body.category,
         authorID: req.userData.memberID,
+        type: req.body.type,
         score: req.body.score
     });
     post.save()

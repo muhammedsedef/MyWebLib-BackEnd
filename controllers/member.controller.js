@@ -8,7 +8,7 @@ const {validationResult} = require('express-validator/check');
 
 //GET BACK ALL THE MEMBERS
 exports.list = (req,res) => {
-    Member.find()
+    Member.find({},"-password")
     .then((members) => {
         res.status(200).json({
             status: 200,
@@ -146,43 +146,45 @@ exports.delete = (req,res) =>{
 };
 
 //LOGIN MEMBER
-exports.login = async (req,res) => {
-    await Member.findOne({email: req.body.email }, function (err, member) { 
-        if (err){ 
-            res.status(400).json({
-                status: 400,
-                message: err.message
+exports.login = (req,res) => {
+    Member.findOne({email:req.body.email})
+    .then((member) => {
+        if(bcrypt.compareSync(req.body.password, member.password)){
+            const token = jwt.sign({
+                memberID: member._id
+            },
+            process.env.JWT_KEY,
+            {
+                expiresIn: "3h"
+            }
+            );
+            res.status(200).json({
+                status: 200,
+                data: member,
+                message: "Success",
+                token: token
             });
-        }else{ 
-            if(bcrypt.compareSync(req.body.password, member.password)){
-                const token = jwt.sign({
-                    memberID: member._id
-                },
-                process.env.JWT_KEY,
-                {
-                    expiresIn: "3h"
-                }
-                );
-                res.status(200).json({
-                    status: 200,
-                    data: member,
-                    message: "Success",
-                    token: token
-                });
-            }else{
-            res.status(400).json({
-                status: 400,
-                message: "Wrong Password!"
-            });
-        }
-        } 
-    })
-};
+        }else{
+        res.status(400).json({
+            status: 400,
+            message: "Wrong Password!"
+        });
+    }
+    }).catch((err) => {
+        res.status(400).json({
+            status:400,
+            message:"Email doesnot exist"
+        });
+    });
+}     
+            
+        
+
 
 //RESET PASSWORD
 exports.resetPassword = (req,res) => {
     
-    Member.findOne({_id: req.params.id})
+    Member.findOneAndUpdate({_id: req.params.id})
     .then((member) => {
         if(bcrypt.compareSync(req.body.oldPassword,member.password)){
            bcrypt.hash(req.body.newPassword,saltRounds, (err,hash) =>{
@@ -224,10 +226,9 @@ exports.follow = (req,res) => {
     console.log(req.userData);
     //FOLLOW PART
     Member.findOneAndUpdate({_id:req.userData.memberID},
-        {$push: {follow:{
+        {$addToSet: {follow:{
                     userID: req.body.id,
-                    followDate: new Date()
-                }
+                    followDate: new Date()}
             }
         },{new:true}
         ).then((result) => {
@@ -242,7 +243,7 @@ exports.follow = (req,res) => {
 
     //FOLLOWERS PART
     Member.findOneAndUpdate({_id:req.body.id},
-        {$push: {followers:{
+        {$addToSet: {followers:{
                     userID: req.userData.memberID,
                     followDate: new Date()
                 }
