@@ -5,7 +5,7 @@ const {check,validationResult } = require('express-validator/check');
 //CREATING NEW USER
 const userValidationRules = () => {
     return [
-        check('email', 'Your email is not valid').isEmail().normalizeEmail(),
+        check('email', 'Your email is not valid').isEmail(),
 
         check('password', 'The password must be 6+ chars long and contain a number')
         .isStrongPassword().withMessage('Please enter a strong password!')
