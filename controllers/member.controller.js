@@ -232,38 +232,33 @@ exports.follow = (req,res) => {
             }
         },{new:true}
         ).then((result) => {
-           console.log(result);
+           //FOLLOWERS PART
+            Member.findOneAndUpdate({_id:req.body.id},
+                {$addToSet: {followers:{
+                            userID: req.userData.memberID,
+                            followDate: new Date()
+                        }
+                    }
+                },{new:true}
+                ).then((result) => {
+                    res.status(200).json({
+                        status: 200,
+                        data: result,
+                        message: `You Successfully follow ${result.firstName} ${result.lastName}`
+                    });
+                }).catch((err) => {
+                    res.status(400).json({
+                        status: 400,
+                        message: "followers da hata"
+                    });
+                });
         }).catch((err) => {
             res.status(400).json({
                 status: 400,
                 message: "follow da hata"
             });
         });    
-    
-
-    //FOLLOWERS PART
-    Member.findOneAndUpdate({_id:req.body.id},
-        {$addToSet: {followers:{
-                    userID: req.userData.memberID,
-                    followDate: new Date()
-                }
-            }
-        },{new:true}
-        ).then((result) => {
-            res.status(200).json({
-                status: 200,
-                data: result,
-                message: `You Successfully follow ${result.firstName} ${result.lastName}`
-                
-            });
-        }).catch((err) => {
-            res.status(400).json({
-                status: 400,
-                message: "followers da hata"
-            });
-        });
-
-}
+};
 
 
 exports.unFollow = (req,res) => {
@@ -276,35 +271,30 @@ exports.unFollow = (req,res) => {
             }
         },{new:true}
         ).then((result) => {
-           console.log(result);
+            //FOLLOWERS PART
+            Member.findOneAndUpdate({_id:req.body.id},
+                {$pull: {followers:{
+                            userID: req.userData.memberID
+                        }
+                    }
+                },{new:true}
+                ).then((result) => {
+                    res.status(200).json({
+                        status: 200,
+                        data: result,
+                        message: `You Successfully unFollow ${result.firstName} ${result.lastName}`
+                    });
+                }).catch((err) => {
+                    res.status(400).json({
+                        status: 400,
+                        message: "followers da hata"
+                    });
+                });
         }).catch((err) => {
             res.status(400).json({
                 status: 400,
                 message: "follow da hata"
             });
         });    
-    
-
-    //FOLLOWERS PART
-    Member.findOneAndUpdate({_id:req.body.id},
-        {$pull: {followers:{
-                    userID: req.userData.memberID
-                }
-            }
-        },{new:true}
-        ).then((result) => {
-            res.status(200).json({
-                status: 200,
-                data: result,
-                message: `You Successfully unFollow ${result.firstName} ${result.lastName}`
-                
-            });
-        }).catch((err) => {
-            res.status(400).json({
-                status: 400,
-                message: "followers da hata"
-            });
-        });
-
-}
+};
     
